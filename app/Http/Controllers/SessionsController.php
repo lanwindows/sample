@@ -8,6 +8,14 @@ use Auth;
 
 class SessionsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);//使用 Auth 中间件提供的 guest 选项，用于指定一些只允许未登录用户访问的动作.只让未登录用户访问登录页面
+    }
+
     public function create()
     {
         return view('sessions.create');//返回登录视图resources/views/sessions/create.blade.php
@@ -33,7 +41,10 @@ class SessionsController extends Controller
 3). 如果匹配后两个值不一致，则返回 false；
 如果用户未找到，则返回 false。*/
             session()->flash('success', '欢迎回来！');
-            return redirect()->route('users.show', [Auth::user()]);
+            return redirect()->intended(route('users.show', [Auth::user()]));
+            /*
+            redirect() 实例提供了一个 intended 方法，该方法可将页面重定向到上一次请求尝试访问的页面上，并接收一个默认跳转地址参数，当上一次请求记录为空时，跳转到默认地址上
+            */
         } else {
             session()->flash('danger', '很抱歉，邮箱和密码不匹配');
             return redirect()->back();
